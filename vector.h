@@ -23,5 +23,6 @@ void init_vector(struct vector* v);
 int access_element_vector(struct vector* v, size_t index);
 void insert_element_vector(struct vector* v, int element_to_insert);
 void free_vector(struct vector* v);
+int vector_size(struct vector* v);
 
 #endif

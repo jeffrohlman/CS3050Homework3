@@ -35,3 +35,7 @@ void free_vector(struct vector* v)
 	free(v->data);
 	v->size = 0;
 }
+
+int vector_size(struct vector* v){
+    return v -> size;
+}
