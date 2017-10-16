@@ -15,11 +15,12 @@
 #include <stdlib.h>
 #include "input_error.h"
 #include "vector.h"
-#include "ctype.h"
+#include <ctype.h>
+#include "queue.h"
 
 void parse_getline(FILE*, struct vector adj[]);
 void parseline(char *, int *, int *);
-
+void bfs(struct vector adj[], int dist[], int max);
 
 
 int main(int argc, char** argv) {
@@ -50,13 +51,28 @@ int main(int argc, char** argv) {
         i++;
     }
     
-    printf("%d\n", num);
     struct vector adjList[num];
+    int dist[num];
     for(i = 0; i < num; i++){
         init_vector(&adjList[i]);
+        dist[i] = -1;
     }
     
     parse_getline(fptr, adjList);
+    int j = 0;
+    for(i = 0; i < num; i++){
+        printf("ADJ %d: ", i+1);
+        for(j = 0; j < vector_size(&adjList[i]); j++)
+            printf("%d ", access_element_vector(&adjList[i], j));
+        printf("\n");
+    }
+    
+    
+    
+    if((fclose(fptr)) != 0)
+        exit(INPUT_FILE_FAILED_TO_CLOSE);
+    
+    free(line);
     
     return (EXIT_SUCCESS);
 }
@@ -68,14 +84,14 @@ void parse_getline(FILE* fp, struct vector adj[]) {
 	char* line = NULL;
 	size_t nbytes = 0;
         int linelen=0;
-        int* v1 = 0;
-        int* v2 = 0;
+        int v1 = 0;
+        int v2 = 0;
         
 	while ((linelen=getline(&line, &nbytes, fp)) != -1) {
 		line[linelen-1] = '\0'; 
 		parseline(line, &v1, &v2);
-                insert_element_vector(&adj[*v1], *v2);
-                insert_element_vector(&adj[*v2], *v1);   
+                insert_element_vector(&adj[v1 - 1], v2);
+                insert_element_vector(&adj[v2 - 1], v1);   
 	}
 
 	free(line);
@@ -86,10 +102,28 @@ void parse_getline(FILE* fp, struct vector adj[]) {
 void parseline(char *line, int *v1, int *v2) {
 	char c;
         int i=1;
+        *v1 = 0;
+        *v2 = 0;
         if(line[0] != '(')
+            exit(PARSING_ERROR_INVALID_FORMAT);
 
-	while ((c = *(line + i++)) != '\0') {
+	while ((c = line[i++]) != ',') {
 		if (!isdigit(c))
-                    exit(PARSING_ERROR_INVALID_CHARACTER_ENCOUNTERED);
+                    exit(PARSING_ERROR_INVALID_FORMAT);
+                *v1 *= 10;
+                *v1 += c - '0';
 	}
+        
+        while ((c = line[i++]) != ')') {
+		if (!isdigit(c))
+                    exit(PARSING_ERROR_INVALID_FORMAT);
+                *v2 *= 10;
+                *v2 += c - '0';
+	}
+        if(line[i] != '\0')
+            exit(PARSING_ERROR_INVALID_FORMAT);
+}
+
+void bfs(struct vector adj[], int dist[], int max){
+    dist[0] = 0;
 }
