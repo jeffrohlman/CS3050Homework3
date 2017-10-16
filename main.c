@@ -18,8 +18,8 @@
 #include <ctype.h>
 #include "queue.h"
 
-void parse_getline(FILE*, struct vector adj[]);
-void parseline(char *, int *, int *);
+void parse_getline(FILE*, struct vector adj[], int max);
+void parseline(char *, int *, int *, int max);
 void bfs(struct vector adj[], int dist[], int max);
 
 
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
         dist[i] = -1;
     }
     
-    parse_getline(fptr, adjList);
+    parse_getline(fptr, adjList, num);
     int j = 0;
     for(i = 0; i < num; i++){
         printf("ADJ %d: ", i+1);
@@ -67,10 +67,23 @@ int main(int argc, char** argv) {
         printf("\n");
     }
     
+    bfs(adjList, dist, num);
     
+    for(i = 0; i < num; i++)
+        printf("%d\n", dist[i]);
+    
+    FILE* ofptr = fopen(*(argv + 2), "w");
+    if(!ofptr)
+        exit(OUTPUT_FILE_FAILED_TO_OPEN);
+    
+    for(i = 0; i < num; i++)
+        fprintf(ofptr, "%d\n", dist[i]);
     
     if((fclose(fptr)) != 0)
         exit(INPUT_FILE_FAILED_TO_CLOSE);
+    
+    if((fclose(ofptr)) != 0)
+        exit(OUTPUT_FILE_FAILED_TO_CLOSE);
     
     free(line);
     
@@ -80,7 +93,7 @@ int main(int argc, char** argv) {
 //Function that scans file and pulls each line one at a time
 //Send individual lines to parseline to check for non digit characters
 //Adds to vector once determined to be an integer
-void parse_getline(FILE* fp, struct vector adj[]) {
+void parse_getline(FILE* fp, struct vector adj[], int max) {
 	char* line = NULL;
 	size_t nbytes = 0;
         int linelen=0;
@@ -89,7 +102,7 @@ void parse_getline(FILE* fp, struct vector adj[]) {
         
 	while ((linelen=getline(&line, &nbytes, fp)) != -1) {
 		line[linelen-1] = '\0'; 
-		parseline(line, &v1, &v2);
+		parseline(line, &v1, &v2, max);
                 insert_element_vector(&adj[v1 - 1], v2);
                 insert_element_vector(&adj[v2 - 1], v1);   
 	}
@@ -99,7 +112,7 @@ void parse_getline(FILE* fp, struct vector adj[]) {
 
 //Function to take in single line and parse for non digit characters
 //If the function encounters a non digit character the program is exited
-void parseline(char *line, int *v1, int *v2) {
+void parseline(char *line, int *v1, int *v2, int max) {
 	char c;
         int i=1;
         *v1 = 0;
@@ -113,17 +126,35 @@ void parseline(char *line, int *v1, int *v2) {
                 *v1 *= 10;
                 *v1 += c - '0';
 	}
-        
+        if(*v1 > max)
+            exit(INTEGER_IS_NOT_A_VERTEX);
         while ((c = line[i++]) != ')') {
 		if (!isdigit(c))
                     exit(PARSING_ERROR_INVALID_FORMAT);
                 *v2 *= 10;
                 *v2 += c - '0';
 	}
+        if(*v2 > max)
+            exit(INTEGER_IS_NOT_A_VERTEX);
         if(line[i] != '\0')
             exit(PARSING_ERROR_INVALID_FORMAT);
 }
 
 void bfs(struct vector adj[], int dist[], int max){
     dist[0] = 0;
+    int v1 = 0;
+    int v2 = 0;
+    int i = 0;
+    struct Queue* q = createQueue(max);
+    enqueue(q, 1);
+    while(!isEmpty(q)){
+        v1 = dequeue(q);
+        for(i = 0; i < vector_size(&adj[v1 - 1]); i++){
+            v2 = access_element_vector(&adj[v1 - 1], i);
+            if(dist[v2 - 1] == -1){
+                dist[v2 - 1] = dist[v1 - 1] + 1;
+                enqueue(q, v2);
+            }
+        }
+    }
 }
