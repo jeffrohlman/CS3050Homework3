@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
         exit(INPUT_FILE_FAILED_TO_OPEN);
     
     
-    if(fgetc(fptr) == EOF)
+    if(isdigit(fgetc(fptr)) == 0)
         exit(PARSING_ERROR_EMPTY_INPUT_FILE);
     fseek(fptr, 0, SEEK_SET);
     
