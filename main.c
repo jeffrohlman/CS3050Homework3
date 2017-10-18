@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
     }
     
     struct vector *adjList = (struct vector *)malloc(sizeof(struct vector) * num);
-    int dist[num];
+    int *dist = (int *)malloc(sizeof(int) * num);
     for(i = 0; i < num; i++){
         init_vector(&adjList[i]);
         dist[i] = -1;
@@ -75,6 +75,9 @@ int main(int argc, char** argv) {
         exit(OUTPUT_FILE_FAILED_TO_CLOSE);
     
     free(line);
+    for(i = 0; i < num; i++)
+        free_vector(&adjList[i]);
+    free(dist);
     
     return (EXIT_SUCCESS);
 }
