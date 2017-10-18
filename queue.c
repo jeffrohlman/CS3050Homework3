@@ -1,4 +1,5 @@
 // C program for array implementation of queue
+//Functions and notation from: http://www.geeksforgeeks.org/queue-set-1introduction-and-array-implementation/
 #include "queue.h"
  
 // function to create a queue of given capacity. 

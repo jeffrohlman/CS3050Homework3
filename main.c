@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
         exit(INPUT_FILE_FAILED_TO_OPEN);
     
     
-    if(isdigit(fgetc(fptr)) == 0)
+    if(fgetc(fptr) == EOF)
         exit(PARSING_ERROR_EMPTY_INPUT_FILE);
     fseek(fptr, 0, SEEK_SET);
     
@@ -42,7 +42,6 @@ int main(int argc, char** argv) {
     
     int i = 0;
     int num = 0;
-    int temp = 0;
     while(line[i] != '\n'){
         if(isdigit(line[i]) == 0)
             exit(PARSING_ERROR_INVALID_FORMAT);
@@ -51,26 +50,16 @@ int main(int argc, char** argv) {
         i++;
     }
     
-    struct vector adjList[num];
+    struct vector *adjList = (struct vector *)malloc(sizeof(struct vector) * num);
     int dist[num];
     for(i = 0; i < num; i++){
         init_vector(&adjList[i]);
         dist[i] = -1;
     }
-    
     parse_getline(fptr, adjList, num);
-    int j = 0;
-    for(i = 0; i < num; i++){
-        printf("ADJ %d: ", i+1);
-        for(j = 0; j < vector_size(&adjList[i]); j++)
-            printf("%d ", access_element_vector(&adjList[i], j));
-        printf("\n");
-    }
     
     bfs(adjList, dist, num);
     
-    for(i = 0; i < num; i++)
-        printf("%d\n", dist[i]);
     
     FILE* ofptr = fopen(*(argv + 2), "w");
     if(!ofptr)
